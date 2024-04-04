@@ -17,6 +17,8 @@ resolvconf -u
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 
 cat <<EOF > /etc/bind/local.conf
+include "/etc/bind/rfc1912.conf"
+
 zone "hq.work" {
         type master;
         file "hq.db";    
