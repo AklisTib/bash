@@ -4,12 +4,98 @@ echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 
 apt-get update && apt-get install bind bind-utils -y
 
+cat <<EOF > /etc/bind/options.conf
+options {
+	version "unknown";
+	directory "/etc/bind/zone";
+	dump-file "/var/run/named_dump.db";
+	statistics-file "/var/run/named.stats";
+	recursing-file "/var/run/recursing";
 
-sed -i 's/listen-on{ none; };/listen-on{ any; };/g' /etc/bind/options.conf
-sed -i 's/listen-on-v6{ none; };/listen-on-v6{ any; };/g' /etc/bind/options.conf
-sed -i 's/forward only;/forward first;/g' /etc/bind/options.conf
-sed -i 's/forwarders{ };/forwarders{ 77.88.8.8; };/g' /etc/bind/options.conf
-sed -i 's/allow-query {  localnets; }/allow-query { any; };/g' /etc/bind/options.conf
+	// disables the use of a PID file
+	pid-file none;
+
+	/*
+	 * Oftenly used directives are listed below.
+	 */
+
+	listen-on { any; };
+	listen-on-v6 { any; };
+
+	/*
+	 * If the forward directive is set to "only", the server will only
+	 * query the forwarders.
+	 */
+	forward only;
+	forwarders { 77.88.8.8; };
+	include "/etc/bind/resolvconf-options.conf";
+
+	/*
+	 * Specifies which hosts are allowed to ask ordinary questions.
+	 */
+	allow-query { any; };
+
+	/*
+	 * This lets "allow-query" be used to specify the default zone access
+	 * level rather than having to have every zone override the global
+	 * value. "allow-query-cache" can be set at both the options and view
+	 * levels.  If "allow-query-cache" is not set then "allow-recursion" is
+	 * used if set, otherwise "allow-query" is used if set unless
+	 * "recursion no;" is set in which case "none;" is used, otherwise the
+	 * default (localhost; localnets;) is used.
+	 */
+	//allow-query-cache { localnets; };
+
+	/*
+	 * Specifies which hosts are allowed to make recursive queries
+	 * through this server.  If not specified, the default is to allow
+	 * recursive queries from all hosts.  Note that disallowing recursive
+	 * queries for a host does not prevent the host from retrieving data
+	 * that is already in the server's cache.
+	 */
+	//allow-recursion { localnets; };
+
+	/*
+	 * Sets the maximum time for which the server will cache ordinary
+	 * (positive) answers.  The default is one week (7 days).
+	 */
+	//max-cache-ttl 86400;
+
+	/*
+	 * The server will scan the network interface list every
+	 * interface-interval minutes.  The default is 60 minutes.
+	 * If set to 0, interface scanning will only occur when the
+	 * configuration file is loaded.  After the scan, listeners will
+	 * be started on any new interfaces (provided they are allowed by
+	 * the listen-on configuration).  Listeners on interfaces that
+	 * have gone away will be cleaned up.
+	 */
+	//interface-interval 0;
+};
+
+logging {
+	// The default_debug channel has the special property that it only
+	// produces output when the server’s debug level is non-zero. It
+	// normally writes to a file called named.run in the server’s working
+	// directory.
+
+	// For security reasons, when the -u command-line option is used, the
+	// named.run file is created only after named has changed to the new
+	// UID, and any debug output generated while named is starting - and
+	// still running as root - is discarded. To capture this output, run
+	// the server with the -L option to specify a default logfile, or the
+	// -g option to log to standard error which can be redirected to a
+	// file.
+
+	// channel default_debug {
+	// 	file "/var/log/named/named.run" versions 10 size 20m;
+	// 	print-time yes;
+	// 	print-category yes;
+	// 	print-severity yes;
+	// 	severity dynamic;
+	// };
+};
+EOF
 
 systemctl enable --now bind
 echo name_servers=127.0.0.1 >> /etc/resolvconf.conf
@@ -49,72 +135,73 @@ rm -rf /etc/bind/zone/hq.db
 
 cat <<EOF > /etc/bind/zone/hq.db
 
-$TTL    1D
-@       IN      SOA     hq.work. root.hq.work. (
-                   2007010401           ; serial
-                         3600           ; refresh
-                          600           ; retry
-                        86400           ; expire
-                          600           ; ncache
-                    )
-        IN      NS  hq.work.
-        IN      A   127.0.0.0
-hq-r    IN      A   192.168.100.62
-hq-srv  IN      A   192.168.100.5
+$TTL	1D
+@	IN	SOA	hq.work root.hq.work. (
+				2024021400	; serial
+				12H		; refresh
+				1H		; retry
+				1W		; expire
+				1H		; ncache
+			)
+	IN	NS	hq.work.
+	IN	A	127.0.0.0
+hq-r	IN	A	192.168.100.62
+hq-srv	IN	A	192.168.100.5
+ 
 
 EOF
 
 rm -rf /etc/bind/zone/branch.db
 
+
 cat <<EOF > /etc/bind/zone/branch.db
 
-$TTL    1D
-@       IN      SOA     branch.work. root.branch.work (
-                   2007010401           ; serial
-                         3600           ; refresh
-                          600           ; retry
-                        86400           ; expire
-                          600           ; ncache
-                    )
-        IN      NS  branch.work.
-        IN      A   127.0.0.0
-br-r    IN      A   192.168.200.14
-br-srv  IN      A   192.168.200.1
-
+$TTL	1D
+@	IN	SOA	branch.work root.branch.work. (
+				2024021400	; serial
+				12H		; refresh
+				1H		; retry
+				1W		; expire
+				1H		; ncache
+			)
+	IN	NS	branch.work.
+	IN	A	127.0.0.0
+br-r	IN	A	192.168.200.14
+br-srv	IN	A	192.168.200.1
 EOF
 
 rm -rf /etc/bind/zone/100.db
 
 cat <<EOF > /etc/bind/zone/100.db
-$TTL    1D
-@       IN      SOA     hq.work. root.hq.work. (
-                        2007010401      ; serial
-                         3600           ; refresh
-                          600           ; retry
-                        86400           ; expire
-                          600           ; ncache
-                        )
-        IN      NS      hq.work.
-62      IN      PTR     hq-r.hq.work.
-5       IN      PTR     hq-srv.hq.work.
 
+$TTL	1D
+@	IN	SOA	hq.work root.hq.work. (
+				2024021400	; serial
+				12H		; refresh
+				1H		; retry
+				1W		; expire
+				1H		; ncache
+			)
+	IN	NS	hq.work.
+62	IN	PTR	hq-r.hq.work.
+5	IN	PTR	hq-srv.hq.work.
 EOF
 
 rm -rf /etc/bind/zone/200.db
 
 cat <<EOF > /etc/bind/zone/200.db
 
-$TTL    1D
-@       IN      SOA     branch.work. root.branch.work. (
-                        2007010401      ; serial
-                         3600           ; refresh
-                          600           ; retry
-                        86400           ; expire
-                          600           ; ncache
-                        )
-        IN      NS      branch.work.
-14      IN      PTR     br-r.branch.work.
-
+$TTL	1D
+@	IN	SOA	branch.work. root.branch.work. (
+				2024021400	; serial
+				12H		; refresh
+				1H		; retry
+				1W		; expire
+				1H		; ncache
+			)
+	IN	NS	branch.work.
+14	IN	PTR	br-r.branch.work.
+ 
 EOF
 
 named-checkconf -z
