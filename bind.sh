@@ -17,8 +17,6 @@ resolvconf -u
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 
 cat <<EOF > /etc/bind/local.conf
-include "/etc/bind/rfc1912.conf";
-
 zone "hq.work" {
         type master;
         file "hq.db";    
@@ -52,17 +50,17 @@ rm -rf /etc/bind/zone/hq.db
 cat <<EOF > /etc/bind/zone/hq.db
 
 $TTL    1D
-@       IN      SOA hq.work. root.hq.work. (
+@       IN      SOA     hq.work. root.hq.work. (
                    2007010401           ; serial
                          3600           ; refresh
                           600           ; retry
                         86400           ; expire
-                          600 )         ; ncache
-                    }
+                          600           ; ncache
+                    )
         IN      NS  hq.work.
         IN      A   127.0.0.0
 hq-r    IN      A   192.168.100.62
-hq-srv  IN      A   192.168.100.1
+hq-srv  IN      A   192.168.100.5
 
 EOF
 
@@ -71,13 +69,13 @@ rm -rf /etc/bind/zone/branch.db
 cat <<EOF > /etc/bind/zone/branch.db
 
 $TTL    1D
-@       IN      SOA branch.work. root.branch.work (
+@       IN      SOA     branch.work. root.branch.work (
                    2007010401           ; serial
                          3600           ; refresh
                           600           ; retry
                         86400           ; expire
-                          600 )         ; ncache
-                    }
+                          600           ; ncache
+                    )
         IN      NS  branch.work.
         IN      A   127.0.0.0
 br-r    IN      A   192.168.200.14
@@ -98,7 +96,7 @@ $TTL    1D
                         )
         IN      NS      hq.work.
 62      IN      PTR     hq-r.hq.work.
-1       IN      PTR     hq-srv.hq.work.
+5       IN      PTR     hq-srv.hq.work.
 
 EOF
 
