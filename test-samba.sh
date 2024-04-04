@@ -15,9 +15,9 @@ control bind-chroot disabled
 
 grep -q 'bind-dns' /etc/bind/named.conf || echo 'include "/var/lib/samba/bind-dns/named.conf";' >> /etc/bind/named.conf
 
-sed -i '8a\tkey-gssapi-keytab "/var/lib/samba/bind-dns/dns.keytab";'
-sed -i '9a\minimal-responses yes;'
-sed -i '91a\category lame-servers {null;};'
+sed -i '8a\tkey-gssapi-keytab "/var/lib/samba/bind-dns/dns.keytab";' /etc/bind/options.conf
+sed -i '9a\minimal-responses yes;' /etc/bind/options.conf
+sed -i '91a\category lame-servers {null;};' /etc/bind/options.conf
 systemctl stop bind
 
 sed -i 's/HOSTNAME=ISP/HOSTNAME=hq-srv.demo.first/g' /etc/sysconfig/network
