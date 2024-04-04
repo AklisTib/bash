@@ -41,5 +41,3 @@ samba-tool domain info 127.0.0.1
 host -t SRV _kerberos._udp.demo.first.
 host -t SRV _ldap._tcp.demo.first.
 host -t A hq-srv.demo.first
-
-kinit administrator@DEMO.FIRST
