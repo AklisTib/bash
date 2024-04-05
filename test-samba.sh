@@ -1,15 +1,4 @@
-timedatectl set-timezone Europe/Moscow
-
-cat <<EOF > /etc/chrony.conf
-# Use piblic servers from the pool.ntp.org project.
-# Please consider joining the pool (https://www.pool.ntp.org/join.html).
-# pool pool.ntp.org iburst
-
-server 192.168.100.62 iburst prefer
-server 2000:100::3f iburst
-EOF
-
-systemctl enable --now chronyd
+#!/bin/bash
 
 control bind-chroot disabled
 
