@@ -28,7 +28,7 @@ options {
 	 */
 	forward only;
 	forwarders { 77.88.8.8; };
-	include "/etc/bind/resolvconf-options.conf";
+	//include "/etc/bind/resolvconf-options.conf";
 
 	/*
 	 * Specifies which hosts are allowed to ask ordinary questions.
