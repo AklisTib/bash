@@ -134,8 +134,7 @@ chown root:named /etc/bind/zone/{hq,branch,100,200}.db
 rm -rf /etc/bind/zone/hq.db
 
 cat <<EOF > /etc/bind/zone/hq.db
-
-$	1D
+tib	1D
 @	IN	SOA	hq.work root.hq.work. (
 				2024021400	; serial
 				12H		; refresh
@@ -156,7 +155,7 @@ rm -rf /etc/bind/zone/branch.db
 
 cat <<EOF > /etc/bind/zone/branch.db
 
-$ 	1D
+tib	1D
 @	IN	SOA	branch.work root.branch.work. (
 				2024021400	; serial
 				12H		; refresh
@@ -174,7 +173,7 @@ rm -rf /etc/bind/zone/100.db
 
 cat <<EOF > /etc/bind/zone/100.db
 
-$	1D
+tib	1D
 @	IN	SOA	hq.work root.hq.work. (
 				2024021400	; serial
 				12H		; refresh
@@ -191,7 +190,7 @@ rm -rf /etc/bind/zone/200.db
 
 cat <<EOF > /etc/bind/zone/200.db
 
-$ 	1D
+tib	1D
 @	IN	SOA	branch.work. root.branch.work. (
 				2024021400	; serial
 				12H		; refresh
@@ -205,10 +204,10 @@ $ 	1D
 EOF
 
 
-sed -i 's/$/$TTL/g' /etc/bind/zone/hq.db
-sed -i 's/$/$TTL/g' /etc/bind/zone/branch.db
-sed -i 's/$/$TTL/g' /etc/bind/zone/100.db
-sed -i 's/$/$TTL/g' /etc/bind/zone/200.db
+sed -i 's/tib/$TTL/g' /etc/bind/zone/hq.db
+sed -i 's/tib/$TTL/g' /etc/bind/zone/branch.db
+sed -i 's/tib/$TTL/g' /etc/bind/zone/100.db
+sed -i 's/tib/$TTL/g' /etc/bind/zone/200.db
 
 named-checkconf -z
 
