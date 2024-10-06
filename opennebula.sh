@@ -7,7 +7,7 @@ sudo apt-get install -y gnupg wget curl
 
 # Добавление репозитория OpenNebula
 echo "Добавление репозитория OpenNebula..."
-echo "deb https://downloads.opennebula.io/repo/6.6/AstraLinuxSE_1.7/ /" | sudo tee /etc/apt/sources.list.d/opennebula.list
+echo "deb https://downloads.opennebula.io/repo/6.6/Debian/10/ /" | sudo tee /etc/apt/sources.list.d/opennebula.list
 wget -q -O- https://downloads.opennebula.io/repo/repo.key | sudo apt-key add -
 
 # Обновление списка пакетов и установка OpenNebula
